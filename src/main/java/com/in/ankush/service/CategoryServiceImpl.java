@@ -21,21 +21,29 @@ public class CategoryServiceImpl implements CategoryService{
 
 
 	private final CategoryRepository categoryRepository;
-	
 	private final UserService userService;
-	
-	
-	    public CategoryServiceImpl(CategoryRepository categoryRepository, UserService userService) {
+
+
+	public CategoryServiceImpl(CategoryRepository categoryRepository, UserService userService) {
 	        this.categoryRepository = categoryRepository;
 	        this.userService = userService;
 	    }
-	   
+
+/*  
+ * This is for reading the categories from database	 
+ * @return List
+ * */
 	@Override
 	public List<CategoryDto> getAllCategories() {
 		List<CategoryEntity> list = categoryRepository.findByUserId(userService.getLoggedInUser().getId());
 		return list.stream().map(CategoryEntity -> mapToDTO(CategoryEntity)).collect(Collectors.toList());
 	}
 
+/*  
+ * Mapper method to convert category Entity TO category Dto 
+ * @param categoryEntity
+ * @return categoryDto
+ * */
 	private CategoryDto mapToDTO(CategoryEntity categoryEntity) {
 		return CategoryDto.builder()
 				   .categoryId(categoryEntity.getCategoryId())
@@ -48,6 +56,11 @@ public class CategoryServiceImpl implements CategoryService{
 				   .build();   
 	}
 
+/*  
+ * Mapper method to convert User Entity to User Dto 
+ * @param userEntity
+ * @return userDto
+ * */
 	private UserDto mapToUserDTO(User user) {
 		return UserDto.builder()
 			   .email(user.getEmail())
@@ -55,6 +68,12 @@ public class CategoryServiceImpl implements CategoryService{
 			   .build();
 	}
 
+	
+/*  
+ * This is for creating the new category
+ * @param categoryDto
+ * @return categoryDto
+ * */
 	@Override
 	public CategoryDto saveCategory(CategoryDto categoryDto) {
 		CategoryEntity newCategory = mapToEntity(categoryDto);
@@ -71,7 +90,14 @@ public class CategoryServiceImpl implements CategoryService{
 	 * .categoryId(UUID.randomUUID().toString()) 
 	 * .build(); }
 	 */
+
+
 	
+/*  
+ * Mapper method to convert category Dto to category Entity
+ * @param categoryDto
+ * @return categoryEntity
+ * */
 	 private CategoryEntity mapToEntity(CategoryDto categoryDto) {
 	        return CategoryEntity.builder()
 	                .categoryId(UUID.randomUUID().toString())
@@ -82,6 +108,11 @@ public class CategoryServiceImpl implements CategoryService{
 	                .build();
 	    }
 
+	
+/*  
+ * This is for deleting the categories from database	 
+ * @param categoryId
+ * */
 	@Override
 	public void deleteCategory(String categoryId) {
 		Optional<CategoryEntity> optionalCategory = categoryRepository.findByUserIdAndCategoryId(userService.getLoggedInUser().getId(),categoryId);
