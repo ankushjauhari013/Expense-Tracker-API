@@ -76,8 +76,8 @@ public class CategoryServiceImpl implements CategoryService{
  * */
 	@Override
 	public CategoryDto saveCategory(CategoryDto categoryDto) {
-		Optional<CategoryEntity>  optionalCategory = categoryRepository.existsByNameAndUserId(categoryDto.getName(),userService.getLoggedInUser().getId());
-		if(optionalCategory.isPresent()) {
+		boolean isCategoryPresent = categoryRepository.existsByNameAndUserId(categoryDto.getName(),userService.getLoggedInUser().getId());
+		if(isCategoryPresent) {
 			throw new ItemAlreadyExistsException("Category is already present for "+ categoryDto.getName());
 		}
 		CategoryEntity newCategory = mapToEntity(categoryDto);
