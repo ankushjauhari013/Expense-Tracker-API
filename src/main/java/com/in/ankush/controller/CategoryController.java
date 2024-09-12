@@ -1,5 +1,8 @@
 package com.in.ankush.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,10 +18,12 @@ import com.in.ankush.dto.CategoryDto;
 import com.in.ankush.io.CategoryRequest;
 import com.in.ankush.io.CategoryResponse;
 import com.in.ankush.service.CategoryService;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
+
+/*  
+ * This controller is for managing the categories
+ * @author Ankush Jauhari
+ * */
 
 @RestController
 @RequiredArgsConstructor
@@ -31,8 +36,14 @@ public class CategoryController {
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
+
+
 	
-    
+/*  
+ * API for creating the category
+ * @param categoryRequest
+ * @return CategoryReponse
+ * */	
     @ResponseStatus(HttpStatus.CREATED)
 	@PostMapping
 	public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryRequest categoryRequest){
@@ -42,19 +53,37 @@ public class CategoryController {
         return ResponseEntity.ok(mapToResponse(categoryDTO));
 
 	}
-	
+
+
+/*  
+ * API for reading the category
+ * @return List
+ * */
 	@GetMapping
 	public List<CategoryResponse> readCategories(){
 		List<CategoryDto> listOfCategories = categoryService.getAllCategories();
 		return listOfCategories.stream().map(categoryDTO -> mapToResponse(categoryDTO)).collect(Collectors.toList());
 	}
+
 	
+/*  
+ * API for deleting the category
+ * @param categoryId
+ * @return Void
+ * */
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{categoryId}")
 	public void deleteCategory(@PathVariable String categoryId) {
 		categoryService.deleteCategory(categoryId);
 	}
+
 	
+
+/*  
+ * Mapper method for converting DTO object to Response object 
+ * @param categoryDTO
+ * @return categoryResponse
+ * */
 	private CategoryResponse mapToResponse(CategoryDto categoryDTO) {
 		return new CategoryResponse.CategoryResponseBuilder()
 				.categoryId(categoryDTO.getCategoryId())
@@ -66,6 +95,12 @@ public class CategoryController {
 				.build();
 		}
 
+
+/*  
+ * Mapper method for converting Request object to DTO object 
+ * @param categoryRequest
+ * @return categoryDTO
+ * */
 	private CategoryDto mapToDTO(CategoryRequest categoryRequest) {
 		return new CategoryDto.CategoryDtoBuilder()
 				.name(categoryRequest.getName())
