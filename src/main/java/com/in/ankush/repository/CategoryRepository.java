@@ -26,9 +26,9 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>{
 	Optional<CategoryEntity> findByUserIdAndCategoryId(Long id, String categoryId);
 
 /*  
- * It Checks whether category is present or not by userId and categoryName  
- * @param name, userId
- * @return Optional<categoryEntity>
- * */
-	Optional<CategoryEntity> existsByNameAndUserId(String name, Long userId);
+* It Checks whether category is present or not by userId and categoryName  
+* @param name, userId
+* @return boolean
+* */
+	boolean existsByNameAndUserId(String name, Long userId);
 }
