@@ -1,8 +1,7 @@
 package com.in.ankush.repository;
 
-
-import java.sql.Date;
 import java.util.Optional;
+import java.time.LocalDate;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,15 +34,20 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 	Page<Expense> findByUserIdAndCategory(Long userId, String category, Pageable page);
 	
 	
+	Page<Expense> findByUserIdAndCategoryId(Long userId, Long categoryId, Pageable page);
+
+	
 	// SELECT * FROM tbl_expenses WHERE user_id=? AND name LIKE ‘%keyword%’
 	Page<Expense> findByUserIdAndNameContaining(Long userId, String keyword, Pageable page);
 	
 	
 	// SELECT * FROM tbl_expenses WHERE user_id = ? AND date BETWEEN ‘startDate’ AND ‘endDate’
-	Page<Expense> findByUserIdAndDateBetween(Long userId, Date startDate, Date endDate, Pageable page);
+	Page<Expense> findByUserIdAndDateBetween(Long userId, LocalDate localStartDate, LocalDate localEndDate, Pageable page);
 	
 	
 	// SELECT * FROM tbl_expenses WHERE user_id=? and expense_id=?;
-	Optional<Expense>  findByUserIdAndId(Long userId, Long expenseId);
+	Optional<Expense>  findByUserIdAndExpenseId(Long userId, String expenseId);
+	
+
 }
 

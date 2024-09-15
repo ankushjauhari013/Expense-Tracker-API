@@ -1,8 +1,8 @@
 package com.in.ankush.entity;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
@@ -20,11 +20,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import lombok.Builder;
+
 
 @Entity
+@Builder
 @Table(name = "tbl_expenses")
 public class Expense {
 	
@@ -32,37 +32,34 @@ public class Expense {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	
-	
+	@Column(unique = true)
+	private String expenseId;
+
+
 	@Column(name = "expense_name")
-	@NotBlank(message="Expense name must not be NULL!")
-	@Size(min=3, message = "Expense name must be atleast 3 Characters")
 	private String name;
-	
 	
 	private String description;
 	
-	
 	@Column(name = "expense_amount")
-	@NotNull(message="Expense Amount should not be NULL!")
 	private BigDecimal amount;
 	
 	
-	@NotBlank(message="Expense Category should not be NULL!")
-	private String category;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name="category_id", nullable = false)
+	@OnDelete(action =OnDeleteAction.RESTRICT)
+	private CategoryEntity category;
 	
-	@NotNull(message="Date must not be NULL!")
-	private Date date;
-	
+	private LocalDate date;
 	
 	@Column(name = "created_at", nullable = false, updatable = false)
 	@CreationTimestamp
-	private Timestamp createdAt;
+	private LocalDateTime createdAt;
 	
 	
 	@Column(name = "updated_at")
 	@UpdateTimestamp
-	private Timestamp updatedAt;
+	private LocalDateTime updatedAt;
 	
 	
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -104,35 +101,35 @@ public class Expense {
 		this.amount = amount;
 	}
 
-	public String getCategory() {
+	public CategoryEntity getCategory() {
 		return category;
 	}
 
-	public void setCategory(String category) {
+	public void setCategory(CategoryEntity category) {
 		this.category = category;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 	
-	public Timestamp getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(Timestamp createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public Timestamp getUpdatedAt() {
+	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(Timestamp updatedAt) {
+	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 	
@@ -144,10 +141,19 @@ public class Expense {
 		this.user = user;
 	}
 	
+	public String getExpenseId() {
+		return expenseId;
+	}
 
-public Expense(Long id, String name, String description, BigDecimal amount, String category, Date date, Timestamp createdAt, Timestamp updatedAt, User user) {
+	public void setExpenseId(String expenseId) {
+		this.expenseId = expenseId;
+	}
+	
+
+public Expense(Long id, String expenseId,String name, String description, BigDecimal amount, CategoryEntity category, LocalDate date, LocalDateTime createdAt, LocalDateTime updatedAt, User user) {
 		super();
 		this.id = id;
+		this.expenseId=expenseId;
 		this.name = name;
 		this.description = description;
 		this.amount = amount;
@@ -160,9 +166,75 @@ public Expense(Long id, String name, String description, BigDecimal amount, Stri
 
 	public Expense() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
+	
+	
+	public static class ExpenseBuilder {
+        private Long id;
+        private String expenseId;
+        private String name;
+        private String description;
+        private BigDecimal amount;
+        private CategoryEntity category;
+        private LocalDate date;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+        private User user;
 
+        public ExpenseBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+        
+        public ExpenseBuilder expenseId(String expenseId) {
+            this.expenseId = expenseId;
+            return this;
+        }
+
+        public ExpenseBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ExpenseBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public ExpenseBuilder amount(BigDecimal amount) {
+            this.amount = amount;
+            return this;
+        }
+
+        public ExpenseBuilder category(CategoryEntity category) {
+            this.category = category;
+            return this;
+        }
+
+        public ExpenseBuilder date(LocalDate date) {
+            this.date = date;
+            return this;
+        }
+
+        public ExpenseBuilder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public ExpenseBuilder updatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public ExpenseBuilder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Expense build() {
+            return new Expense(id,expenseId,name,description,amount,category,date,createdAt,updatedAt,user);
+        }
+    }
 }
 
 
