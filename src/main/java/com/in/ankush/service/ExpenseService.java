@@ -1,31 +1,32 @@
 package com.in.ankush.service;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.in.ankush.entity.Expense;
+import com.in.ankush.dto.ExpenseDto;
 
 public interface ExpenseService {
 	
 	//List<Expense> getAllExpenses();
 	
-	Page<Expense> getAllExpenses(Pageable page);
+	List<ExpenseDto> getAllExpenses(Pageable page);
 	
-	Expense getExpenseById(Long id);
+	ExpenseDto getExpenseById(String expenseId);
 
-	void deleteExpenseById(Long id);
+	void deleteExpenseById(String expenseId);
 	
-	Expense saveExpenseDetails(Expense expense);
+	ExpenseDto saveExpenseDetails(ExpenseDto expenseDto);
 
-	Expense updateExpenseDetails(Long id, Expense expense);
+	ExpenseDto updateExpenseDetails(String expenseId, ExpenseDto expenseDto);
 	
-	List<Expense> readByCategory(String category, Pageable page);
+	List<ExpenseDto> readByCategory(String category, Pageable page);
 
-	List<Expense> readByName(String keyword, Pageable page);
+	List<ExpenseDto> readByName(String keyword, Pageable page);
 	
-	List<Expense> readByDate(Date startDate, Date endDate, Pageable page);
+	List<ExpenseDto> readByDate(LocalDate startDate, LocalDate endDate, Pageable page);
+	
+	
 	
 }

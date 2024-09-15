@@ -1,7 +1,8 @@
 package com.in.ankush.controller;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.data.domain.Page;
@@ -17,7 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.in.ankush.entity.Expense;
+import com.in.ankush.dto.CategoryDto;
+import com.in.ankush.dto.ExpenseDto;
+import com.in.ankush.io.CategoryResponse;
+import com.in.ankush.io.ExpenseRequest;
+import com.in.ankush.io.ExpenseResponse;
 import com.in.ankush.service.ExpenseService;
 import jakarta.validation.Valid;
 
@@ -41,63 +46,97 @@ public class ExpenseController {
 
 	
 	@GetMapping("/expenses")
-	public List<Expense> getAllExpenses(Pageable page) {
+	public List<ExpenseResponse> getAllExpenses(Pageable page) {
 		
 		/*    handleGeneralException()
 		 * int number = 5; calculateFactorial(number);
 		 */
 		
-		return expenseService.getAllExpenses(page).toList();
-	}
-	
-	
-	
-	@GetMapping("/expenses/{id}")
-	public Expense getExpenseById(@PathVariable Long id) {
-		return expenseService.getExpenseById(id);
+		List<ExpenseDto> listOfExpenses = expenseService.getAllExpenses(page);
+			return listOfExpenses.stream().map(expenseDto -> mapToResponse(expenseDto)).collect(Collectors.toList());
 	}
 	
 	
 	@ResponseStatus(value = HttpStatus.CREATED)
 	@PostMapping("/expenses")
 	
-	public Expense saveExpenseDetails(@Valid @RequestBody Expense expense) {
-		return expenseService.saveExpenseDetails(expense);
+	public ExpenseResponse saveExpenseDetails(@Valid @RequestBody ExpenseRequest expenseRequest) {
+		ExpenseDto expenseDto = mapToDTO(expenseRequest);
+		expenseDto = expenseService.saveExpenseDetails(expenseDto);
+		return mapToResponse(expenseDto);
 	}
+
+	private ExpenseDto mapToDTO(ExpenseRequest expenseRequest) {
+		return new ExpenseDto.ExpenseDtoBuilder()
+				  .name(expenseRequest.getName())
+				  .description(expenseRequest.getDescription())
+				  .amount(expenseRequest.getAmount())
+				  .date(expenseRequest.getDate())
+				  .categoryId(expenseRequest.getCategoryId())
+				  .build();
+	}
+
 	
+	private ExpenseResponse mapToResponse(ExpenseDto expenseDto) {
+		return new ExpenseResponse.ExpenseResponseBuilder()
+								  .expenseId(expenseDto.getExpenseId())
+								  .name(expenseDto.getName())
+								  .description(expenseDto.getDescription())
+								  .amount(expenseDto.getAmount())
+								  .date(expenseDto.getDate())
+								  .createdAt(expenseDto.getCreatedAt())
+								  .updatedAt(expenseDto.getUpdatedAt())
+								  .category(mapToCategoryResponse(expenseDto.getCategoryDto()))
+								  .build();
+	}
+
+
+	private CategoryResponse mapToCategoryResponse(CategoryDto categoryDto) {
+		return new CategoryResponse.CategoryResponseBuilder()
+						.categoryId(categoryDto.getCategoryId())
+						.name(categoryDto.getName())
+						.build();
+	}
+
 	
-	@PutMapping("/expenses/{id}")
-		public Expense updateExpenseDetails(@RequestBody Expense expense, @PathVariable Long id) {
-		return expenseService.updateExpenseDetails(id,expense);
+	@GetMapping("/expenses/{expenseId}")
+	public ExpenseResponse getExpenseById(@PathVariable String expenseId) {
+		ExpenseDto expenseDto = expenseService.getExpenseById(expenseId);
+		return mapToResponse(expenseDto);
+	}
+
+	@PutMapping("/expenses/{expenseId}")
+		public ExpenseResponse updateExpenseDetails(@RequestBody ExpenseRequest expenseRequest, @PathVariable String expenseId) {
+		ExpenseDto updatedExpense = mapToDTO(expenseRequest);
+		updatedExpense = expenseService.updateExpenseDetails(expenseId,updatedExpense);
+		return mapToResponse(updatedExpense);
 	}
 	
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
 	@DeleteMapping("/expenses")
-	
-	public void deleteExpenseById(@RequestParam Long id) {
-		 expenseService.deleteExpenseById(id);	
-	}
-	
-	public int calculateFactorial(int number) {
-		return number * calculateFactorial(number -1);
+	public void deleteExpenseById(@RequestParam String expenseId) {
+		 expenseService.deleteExpenseById(expenseId);	
 	}
 	
 	@GetMapping("/expenses/category")
-	public List<Expense> getExpensesByCategory(@RequestParam String category, Pageable page){
-		return expenseService.readByCategory(category, page);
+	public List<ExpenseResponse> getExpensesByCategory(@RequestParam String category, Pageable page){
+		List<ExpenseDto> list = expenseService.readByCategory(category, page);
+		return list.stream().map(expenseDto -> mapToResponse(expenseDto)).collect(Collectors.toList());
 	}
 	
 	@GetMapping("/expenses/name")
-	public List<Expense> getExpenseByName(@RequestParam String keyword, Pageable page){
-		return expenseService.readByCategory(keyword, page);
+	public List<ExpenseResponse> getExpenseByName(@RequestParam String keyword, Pageable page){
+		List<ExpenseDto> list = expenseService.readByName(keyword, page);
+		return list.stream().map(expenseDto -> mapToResponse(expenseDto)).collect(Collectors.toList());
 	}
 	
 	@GetMapping("/expenses/date")
-	public List<Expense> getAllExpensesByDates(
-	 @RequestParam(required = false) Date startDate, 
-	 @RequestParam(required = false) Date endDate, 
+	public List<ExpenseResponse> getAllExpensesByDates(
+	 @RequestParam(required = false) LocalDate startDate, 
+	 @RequestParam(required = false) LocalDate endDate, 
 	 Pageable page) {
-	return expenseService.readByDate(startDate, endDate, page);
+	 List<ExpenseDto> list = expenseService.readByDate(startDate, endDate, page);
+	 return list.stream().map(expenseDto -> mapToResponse(expenseDto)).collect(Collectors.toList());
 	}
 	
 }
