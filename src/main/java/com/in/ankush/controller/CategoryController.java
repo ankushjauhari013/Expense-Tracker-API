@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.in.ankush.dto.CategoryDto;
 import com.in.ankush.io.CategoryRequest;
 import com.in.ankush.io.CategoryResponse;
+import com.in.ankush.mappers.CategoryMapper;
 import com.in.ankush.service.CategoryService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,25 +29,32 @@ public class CategoryController {
 	
 	private final CategoryService categoryService;
 	
-    public CategoryController(CategoryService categoryService) {
+	private final CategoryMapper categoryMapper;
+	
+    public CategoryController(CategoryService categoryService, CategoryMapper categoryMapper) {
         this.categoryService = categoryService;
+		this.categoryMapper = categoryMapper;
     }
 	
     
     @ResponseStatus(HttpStatus.CREATED)
 	@PostMapping
 	public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryRequest categoryRequest){
-		CategoryDto categoryDTO = mapToDTO(categoryRequest);
+	//	CategoryDto categoryDTO = mapToDTO(categoryRequest);
+    	
+    	CategoryDto categoryDTO = categoryMapper.mapToCategoryDto(categoryRequest);
 		categoryDTO = categoryService.saveCategory(categoryDTO);
 //		return mapToResponse(categoryDTO);	
-        return ResponseEntity.ok(mapToResponse(categoryDTO));
+        
+		return ResponseEntity.ok(categoryMapper.mapToCategoryResponse(categoryDTO));
 
 	}
 	
 	@GetMapping
 	public List<CategoryResponse> readCategories(){
 		List<CategoryDto> listOfCategories = categoryService.getAllCategories();
-		return listOfCategories.stream().map(categoryDTO -> mapToResponse(categoryDTO)).collect(Collectors.toList());
+		//return listOfCategories.stream().map(categoryDTO -> mapToResponse(categoryDTO)).collect(Collectors.toList());
+		return listOfCategories.stream().map(categoryDTO -> categoryMapper.mapToCategoryResponse(categoryDTO)).collect(Collectors.toList());
 	}
 	
 	@ResponseStatus(HttpStatus.NO_CONTENT)
@@ -55,23 +63,22 @@ public class CategoryController {
 		categoryService.deleteCategory(categoryId);
 	}
 	
-	private CategoryResponse mapToResponse(CategoryDto categoryDTO) {
-		return new CategoryResponse.CategoryResponseBuilder()
-				.categoryId(categoryDTO.getCategoryId())
-				.name(categoryDTO.getName())
-				.description(categoryDTO.getDescription())
-				.categoryIcon(categoryDTO.getCategoryIcon())
-				.createdAt(categoryDTO.getCreatedAt())
-				.updatedAt(categoryDTO.getUpdatedAt())
-				.build();
-		}
-
-	private CategoryDto mapToDTO(CategoryRequest categoryRequest) {
-		return new CategoryDto.CategoryDtoBuilder()
-				.name(categoryRequest.getName())
-				.description(categoryRequest.getDescription())
-				.categoryIcon(categoryRequest.getIcon())
-				.build();
-		
-	}
+	/*
+	 * private CategoryResponse mapToResponse(CategoryDto categoryDTO) { return new
+	 * CategoryResponse.CategoryResponseBuilder()
+	 * .categoryId(categoryDTO.getCategoryId()) .name(categoryDTO.getName())
+	 * .description(categoryDTO.getDescription())
+	 * .categoryIcon(categoryDTO.getCategoryIcon())
+	 * .createdAt(categoryDTO.getCreatedAt()) .updatedAt(categoryDTO.getUpdatedAt())
+	 * .build(); }
+	 */
+	
+	/*
+	 * private CategoryDto mapToDTO(CategoryRequest categoryRequest) { return new
+	 * CategoryDto.CategoryDtoBuilder() .name(categoryRequest.getName())
+	 * .description(categoryRequest.getDescription())
+	 * .categoryIcon(categoryRequest.getIcon()) .build();
+	 * 
+	 * }
+	 */
 }
